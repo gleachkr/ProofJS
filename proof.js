@@ -134,6 +134,13 @@ class ProofNode {
         }
     }
 
+    replace(obj) {
+        this.label = obj.label
+        this.rule = obj.rule
+        this.forest.map((n) => {n.remove()});
+        obj.forest.map((o) => {this.addChild(o)});
+    }
+
     changed() {
         var e = new Event("changed",{bubbles: true})
         this.elt.dispatchEvent(e)

@@ -97,7 +97,11 @@ var theRoot = new ProofRoot(
 jsonDisplay.innerHTML = "<pre contenteditable='true'>" + JSON.stringify(theRoot,null,2) + "</pre>";
 
 theRoot.elt.addEventListener('changed', function () {
-    jsonDisplay.innerHTML = "<pre>" + JSON.stringify(theRoot,null,2) + "</pre>";
+    jsonDisplay.lastChild.innerHTML = "<pre>" + JSON.stringify(theRoot,null,2) + "</pre>";
+});
+
+jsonDisplay.addEventListener('keyup', function() {
+    theRoot.replace(JSON.parse(this.lastChild.innerText))
 });
 
 //a proof can be decorated with a tree of annotations
