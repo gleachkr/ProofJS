@@ -122,10 +122,14 @@ class ProofNode {
     };
 
     decorate(obj) {
-        this.info = obj.info
+        if (typeof(obj.info) != 'undefined') {
+            this.info = obj.info
+        }
         var i = 0;
         for (const o of this.forest) {
-            o.decorate(obj.forest[i]);
+            if (typeof(obj.forest[i]) != 'undefined') {
+                o.decorate(obj.forest[i]);
+            }
             i++;
         }
     }

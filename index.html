@@ -99,6 +99,12 @@ jsonDisplay.innerHTML = "<pre contenteditable='true'>" + JSON.stringify(theRoot,
 theRoot.elt.addEventListener('changed', function () {
     jsonDisplay.innerHTML = "<pre>" + JSON.stringify(theRoot,null,2) + "</pre>";
 });
+
+//a proof can be decorated with a tree of annotations
+theRoot.decorate({
+info: "an inference introducing the assumption (1)",
+forest: []
+});
         
 sandbox.appendChild(theRoot.elt);
 
