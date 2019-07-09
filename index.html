@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>sequent test</title>
+        <link rel="stylesheet" href="./proof.css" type="text/css" media="screen" title="no title" charset="utf-8">
+        <script src="./proof.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" type="text/css" media="screen" title="no title" charset="utf-8">
+    </head>
+    <body>
+        <div style="margin-bottom:10px; display:flex;flex-wrap:wrap">
+        <div id="sandbox" style="display:flex; justify-content:center; align-items:center; border:1px dashed black; margin-top:10px;">
+        </div>
+        <div id="json" style="display:flex; justify-content:center; border:1px dashed black; margin-top:10px;padding:0px 10px 0px 10px;">
+        </div>
+        </div>
+        <div>
+            <p>Press <code>Enter</code> to create a new sibling node.</p>
+            <p>Press <code>Ctrl-Enter</code> to create a new parent node.</p>
+            <p>Cycle nodes with <code>Tab</code> and <code>Shift-Tab</code>.</p>
+            <p>Delete nodes with <code>Ctrl-Backspace</code>.</p>
+        </div>
+    </body>
+    <script>
+
+var sandbox = document.getElementById('sandbox');
+
+var jsonDisplay = document.getElementById('json');
+
+var theRoot = new ProofRoot(
+{
+  "label": "(P->Q)->((R->P)->(R->Q))",
+  "rule": "->I(1)",
+  "forest": [
+    {
+      "label": "(R->P)->(R->Q)",
+      "rule": "->I(2)",
+      "forest": [
+        {
+          "label": "R->Q",
+          "rule": "->I(3)",
+          "forest": [
+            {
+              "label": "Q",
+              "rule": "->E",
+              "forest": [
+                {
+                  "label": "P->Q",
+                  "rule": "(1)",
+                  "forest": [
+                    {
+                      "label": "",
+                      "rule": "",
+                      "forest": []
+                    }
+                  ]
+                },
+                {
+                  "label": "P",
+                  "rule": "->E",
+                  "forest": [
+                    {
+                      "label": "R->P",
+                      "rule": "(2)",
+                      "forest": [
+                        {
+                          "label": "",
+                          "rule": "",
+                          "forest": []
+                        }
+                      ]
+                    },
+                    {
+                      "label": "R",
+                      "rule": "(3)",
+                      "forest": [
+                        {
+                          "label": "",
+                          "rule": "",
+                          "forest": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+);
+
+jsonDisplay.innerHTML = "<pre contenteditable='true'>" + JSON.stringify(theRoot,null,2) + "</pre>";
+
+theRoot.elt.addEventListener('changed', function () {
+    jsonDisplay.innerHTML = "<pre>" + JSON.stringify(theRoot,null,2) + "</pre>";
+});
+        
+sandbox.appendChild(theRoot.elt);
+
+    </script>
+</html>
