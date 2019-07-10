@@ -96,7 +96,7 @@ var theRoot = new ProofRoot(
 
 jsonDisplay.innerHTML = "<pre contenteditable='true'>" + JSON.stringify(theRoot,null,2) + "</pre>";
 
-theRoot.elt.addEventListener('changed', function () {
+theRoot.on('changed', function () {
     jsonDisplay.lastChild.innerHTML = "<pre>" + JSON.stringify(theRoot,null,2) + "</pre>";
 });
 
