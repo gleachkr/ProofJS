@@ -104,13 +104,13 @@ jsonDisplay.addEventListener('keyup', function() {
     theRoot.replace(JSON.parse(this.lastChild.innerText))
 });
 
+theRoot.renderOn(sandbox);
+
 //a proof can be decorated with a tree of annotations
 theRoot.decorate({
-info: "an inference introducing the assumption (1)",
-forest: []
+    info: "an inference introducing the assumption (1)",
+    forest: []
 });
-        
-sandbox.appendChild(theRoot.elt);
 
     </script>
 </html>
