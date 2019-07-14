@@ -70,8 +70,10 @@ class ProofNode {
         
         var inputElt = ProofNode.input(this.label)
         this.on("labelChanged", (l) => {
-            inputElt.value = l;
-            inputElt.setAttribute("style","width:" + l.length + "ch");
+            if (l != inputElt.value) {
+                inputElt.value = l;
+                inputElt.setAttribute("style","width:" + l.length + "ch");
+            }
         });
 
         inputElt.addEventListener('keyup', (e) => {
@@ -90,6 +92,7 @@ class ProofNode {
                 parentElt.inputElt.focus()
                 this.parentNode.trigger("changed",true)
             };
+            this.label = inputElt.value
             this.trigger("changed",true)
         });
 
@@ -164,7 +167,7 @@ class ProofNode {
     decorate(obj) {
         if (typeof(obj.info) != 'undefined') this.info = obj.info;
         var i = 0;
-        for (const o of this.forest) {
+        if (typeof(obj.forest) != 'undefined') for (const o of this.forest) {
             if (typeof(obj.forest[i]) != 'undefined') {
                 o.decorate(obj.forest[i]);
             }
