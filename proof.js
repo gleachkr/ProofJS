@@ -132,6 +132,7 @@ class ProofNode {
     set label(l) { 
         this.labelContent = l;
         this.trigger("labelChanged", false, l) 
+        this.trigger("changed", true);
     };
 
     get rule() { return this.ruleContent };
@@ -139,6 +140,7 @@ class ProofNode {
     set rule(r) { 
         this.ruleContent = r;
         this.trigger("ruleChanged", false, r)
+        this.trigger("changed", true);
     };
 
     addChild(obj) {
@@ -146,6 +148,7 @@ class ProofNode {
         child.parentNode = this;
         this.forest.push(child);
         this.trigger("newChild", false, child);
+        this.trigger("changed", true);
         return child;
     };
 
