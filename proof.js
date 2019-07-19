@@ -55,7 +55,19 @@ class ProofNode {
                         "padding-right:" + (ruleInput.value.length * .6) + "ch");
                 });
                 this.on("infoChanged", (i) => {
-                    ruleInput.setAttribute("title", i);
+                    try {
+                        var msg = document.createElement("div");
+                        msg.innerHTML = i;
+                        msg.setAttribute("class","rulePopper")
+                        ruleContainer.appendChild(msg);
+                        var thePopper = new Popper(ruleInput,msg,{
+                            placement: "right",
+                        });
+                        thePopper.update()
+                    } catch(e) {
+                        console.log(e)
+                        ruleInput.setAttribute("title", i);
+                    }
                 });
             }
         }

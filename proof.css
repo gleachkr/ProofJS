@@ -55,3 +55,17 @@ input {
 .node:last-child > .label > *:nth-child(3) > input {
     font-size:8pt;
 }
+
+.rule > .rulePopper {
+    visibility:hidden;
+    width:100px;
+    background: white;
+    border:1px solid black;
+    padding:10px;
+    margin-left:5px;
+}
+
+.rule:hover > .rulePopper {
+    display:inline-block;
+    visibility:visible;
+}
