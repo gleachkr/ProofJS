@@ -56,14 +56,15 @@ class ProofNode {
                 });
                 this.on("infoChanged", (i) => {
                     try {
+                        try {ruleContainer.popper.destroy()} catch (e) {}
                         var msg = document.createElement("div");
                         msg.innerHTML = i;
                         msg.setAttribute("class","rulePopper")
                         ruleContainer.appendChild(msg);
-                        var thePopper = new Popper(ruleInput,msg,{
+                        ruleContainer.popper = new Popper(ruleInput,msg,{
                             placement: "right",
+                            removeOnDestroy: true,
                         });
-                        thePopper.update()
                     } catch(e) {
                         console.log(e)
                         ruleInput.setAttribute("title", i);

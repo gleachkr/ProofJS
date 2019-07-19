@@ -1,5 +1,11 @@
+@font-face {
+    font-family:"Fira Logic";
+    src: url("https://cdn.jsdelivr.net/gh/gleachkr/FiraLogic/dist/FiraLogic-Regular.woff") format("woff"), 
+         url("https://cdn.jsdelivr.net/gh/gleachkr/FiraLogic/dist/FiraLogic-Regular.tff") format("tff")
+}
+
 input {
-    font-family:monospace;
+    font-family: "Fira Logic", monospace;
     border-style:none;
     margin:0px !important;
     padding:0px;
