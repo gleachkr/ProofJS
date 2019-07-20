@@ -6,30 +6,34 @@
         <title>sequent test</title>
         <link rel="stylesheet" href="./proof.css" type="text/css" media="screen" title="no title" charset="utf-8">
         <script src="./proof.js"></script>
+        <script id="alljs" src="./all.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" type="text/css" media="screen" title="no title" charset="utf-8">
     </head>
     <body>
-        <div style="margin-bottom:10px; display:flex;flex-wrap:wrap">
-        <div id="sandbox" style="display:flex; justify-content:center; align-items:center; border:1px dashed black; margin-top:10px;">
-        </div>
-        <div id="json" style="display:flex; justify-content:center; border:1px dashed black; margin-top:10px;padding:0px 10px 0px 10px;">
-        </div>
-        </div>
         <div>
             <p>Press <code>Enter</code> to create a new sibling node.</p>
             <p>Press <code>Ctrl-Enter</code> to create a new parent node.</p>
             <p>Cycle nodes with <code>Tab</code> and <code>Shift-Tab</code>.</p>
             <p>Delete nodes with <code>Ctrl-Backspace</code>.</p>
+            <p>Mouse over rule labels for annotations. These are automatically updated on the sequent proof.</p>
+        </div>
+        <div style="margin-bottom:10px; display:flex;flex-wrap:wrap;">
+            <div id="sandbox1" style="display:flex; justify-content:center; align-items:center; border:1px dashed black; margin-top:10px;"> </div>
+            <div id="json1" style="display:flex; justify-content:center; border:1px dashed black; margin-top:10px;padding:0px 10px 0px 10px;"> </div>
+            <div id="sandbox2" style="display:flex; justify-content:center; align-items:center; border:1px dashed black; margin-top:10px;"> </div>
+            <div id="json2" style="display:flex; justify-content:center; border:1px dashed black; margin-top:10px;padding:0px 10px 0px 10px;"> </div>
         </div>
     </body>
-    <script>
+    <script defer>
 
-var sandbox = document.getElementById('sandbox');
+var sandbox1 = document.getElementById('sandbox1');
+var sandbox2 = document.getElementById('sandbox2');
 
-var jsonDisplay = document.getElementById('json');
+var jsonDisplay1 = document.getElementById('json1');
+var jsonDisplay2 = document.getElementById('json2');
 
-var theRoot = new ProofRoot(
+var root1 = new ProofRoot(
 {
   "label": "(P->Q)->((R->P)->(R->Q))",
   "rule": "->I(1)",
@@ -95,22 +99,89 @@ var theRoot = new ProofRoot(
 }
 );
 
-jsonDisplay.innerHTML = "<pre contenteditable='true'>" + JSON.stringify(theRoot,null,2) + "</pre>";
+var root2 = new ProofRoot(
+{
+  "label": "P,P->Q:|-:Q",
+  "rule": "L->",
+  "forest": [
+      {
+        "label": "P,Q:|-:Q",
+        "rule": "Cut",
+        "forest": [
+            {
+                  "label": "P,Q,R:|-:Q",
+                  "rule": "",
+                  "forest": []
+                },
+            {
+                  "label": "P,Q:|-:R,Q",
+                  "rule": "",
+                  "forest": []
+                }
+              ]
+          },
+      {
+        "label": "P:|-:Q,P",
+        "rule": "Ax",
+        "forest": [
+            {
+                  "label": "",
+                  "rule": "",
+                  "forest": []
+                }
+              ]
+          }
+    ]
+}
+);
 
-theRoot.on('changed', function () {
-    jsonDisplay.lastChild.innerHTML = "<pre>" + JSON.stringify(theRoot,null,2) + "</pre>";
+jsonDisplay1.innerHTML = "<pre contenteditable='true'>" + JSON.stringify(root1,null,2) + "</pre>";
+jsonDisplay2.innerHTML = "<pre contenteditable='true'>" + JSON.stringify(root2,null,2) + "</pre>";
+
+root1.on('changed', function () {
+    jsonDisplay1.lastChild.innerHTML = "<pre>" + JSON.stringify(root1,null,2) + "</pre>";
 });
 
-jsonDisplay.addEventListener('keyup', function() {
-    theRoot.replace(JSON.parse(this.lastChild.innerText))
+root2.on('changed', function () {
+    jsonDisplay2.lastChild.innerHTML = "<pre>" + JSON.stringify(root2,null,2) + "</pre>";
 });
 
-theRoot.renderOn(sandbox);
+jsonDisplay1.addEventListener('keyup', function() {
+    root1.replace(JSON.parse(this.lastChild.innerText))
+});
+
+
+jsonDisplay2.addEventListener('keyup', function() {
+    root2.replace(JSON.parse(this.lastChild.innerText))
+});
+
+root1.renderOn(sandbox1);
+root2.renderOn(sandbox2);
 
 //a proof can be decorated with a tree of annotations
-theRoot.decorate({
+root1.decorate({
     info: "an inference introducing the assumption (1)",
     forest: []
+});
+
+
+var loadTimeout
+
+function slowLoad () {setTimeout(
+    function () {
+        try {checkSequent_(JSON.stringify(root2),(t)=>{root2.decorate(t)})}
+        catch (e) {slowLoawd()}
+    },100)
+};
+    
+slowLoad()
+
+var updateTimeout
+root2.on("changed",()=>{
+  clearTimeout(updateTimeout)
+  updateTimeout = setTimeout(function() {
+          checkSequent_(JSON.stringify(root2),(t)=>{root2.decorate(t)})
+      },500)
 });
 
     </script>
