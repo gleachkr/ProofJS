@@ -17,6 +17,7 @@ class ProofNode {
         this.labelContent = "";
         this.ruleContent = "";
         this.infoContent = "";
+        this.class = "";
         this.parentNode = null
 
         if (obj) {
@@ -54,13 +55,14 @@ class ProofNode {
                     labelElt.lastChild.setAttribute("style",
                         "padding-right:" + (ruleInput.value.length * .6) + "ch");
                 });
-                this.on("infoChanged", (i) => {
+                this.on("infoChanged", (i,c) => {
                     try {
                         try {ruleContainer.popper.destroy()} catch (e) {}
                         var msg = document.createElement("div");
                         msg.innerHTML = i;
                         msg.setAttribute("class","rulePopper")
                         ruleContainer.appendChild(msg);
+                        ruleContainer.setAttribute("class","rule " + c)
                         ruleContainer.popper = new Popper(ruleInput,msg,{
                             placement: "right",
                             removeOnDestroy: true,
@@ -137,7 +139,7 @@ class ProofNode {
 
     set info(i) { 
         this.infoContent = i;
-        this.trigger("infoChanged", false, i)
+        this.trigger("infoChanged", false, i, this.class)
     }
 
     get label() { return this.labelContent };
@@ -181,6 +183,7 @@ class ProofNode {
     };
 
     decorate(obj) {
+        if (typeof(obj.class) != 'undefined') this.class = obj.class;
         if (typeof(obj.info) != 'undefined') this.info = obj.info;
         var i = 0;
         if (typeof(obj.forest) != 'undefined') for (const o of this.forest) {
