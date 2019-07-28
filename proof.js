@@ -48,7 +48,7 @@ class ProofNode {
                 ruleInput.value = this.ruleContent;
                 ruleInput.addEventListener('input', () => {
                     this.ruleContent = ruleInput.value
-                    this.trigger("changed",true);
+                    this.trigger("changed", true, this);
                 });
                 this.on("ruleChanged", (r) => {
                     ruleInput.setAttribute("style","width:" + ruleInput.value.length + "ch");
@@ -107,10 +107,10 @@ class ProofNode {
                 var parentElt = elt.parentElement.parentElement;
                 this.remove()
                 parentElt.inputElt.focus()
-                this.parentNode.trigger("changed",true)
+                this.parentNode.trigger("changed", true, this)
             };
             this.label = inputElt.value
-            this.trigger("changed",true)
+            this.trigger("changed", true, this)
         });
 
         elt.setAttribute("class","node");
@@ -149,7 +149,7 @@ class ProofNode {
     set label(l) { 
         this.labelContent = l;
         this.trigger("labelChanged", false, l) 
-        this.trigger("changed", true);
+        this.trigger("changed", true, this);
     };
 
     get rule() { return this.ruleContent };
@@ -157,7 +157,7 @@ class ProofNode {
     set rule(r) { 
         this.ruleContent = r;
         this.trigger("ruleChanged", false, r)
-        this.trigger("changed", true);
+        this.trigger("changed", true, this);
     };
 
     addChild(obj) {
@@ -165,7 +165,7 @@ class ProofNode {
         child.parentNode = this;
         this.forest.push(child);
         this.trigger("newChild", false, child);
-        this.trigger("changed", true);
+        this.trigger("changed", true, this);
         return child;
     };
 
@@ -221,7 +221,7 @@ class ProofNode {
 
     trigger(eventName, bubble, ...args) {
       if (bubble && this.parentNode) {
-          this.parentNode.trigger(eventName, bubble, args)
+          this.parentNode.trigger(eventName, bubble, ...args)
       }
       if (!this._eventHandlers || !this._eventHandlers[eventName]) return;
       this._eventHandlers[eventName].forEach(handler => handler.apply(this, args));

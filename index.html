@@ -321,6 +321,14 @@ root1.decorate({
     forest: []
 });
 
+function trimProof (n,obj) {
+if (n == 0) { return ({label: obj.label, rule: obj.rule, forest: []})}
+else { return ({label: obj.label, rule: obj.rule, forest: obj.forest.map((t)=>{return trimProof(n-1,t)})})}}
+
+function trimInfo (n,obj) {
+if (n == 0) { return ({info: obj.info, class: obj.class, forest: []})}
+else { return ({info: obj.info, class: obj.class, forest: obj.forest.map((t)=>{return trimInfo(n-1,t)})})}}
+
 function slowLoad () {
     setTimeout(function () {
         try {
@@ -334,17 +342,19 @@ function slowLoad () {
 slowLoad()
 
 var updateTimeout
-root2.on("changed",()=>{
+root2.on("changed",(thenode)=>{
   clearTimeout(updateTimeout)
   updateTimeout = setTimeout(function() {
-          Carnap.checkPropSequent(JSON.stringify(root2),(t)=>{root2.decorate(t)})
+          if (thenode.parentNode) thenode = thenode.parentNode
+          Carnap.checkPropSequent(JSON.stringify(trimProof(2,thenode)),(t)=>{thenode.decorate(trimInfo(1,t))})
       },500)
 });
 
-root3.on("changed",()=>{
+root3.on("changed",(thenode)=>{
   clearTimeout(updateTimeout)
   updateTimeout = setTimeout(function() {
-          Carnap.checkFOLSequent(JSON.stringify(root3),(t)=>{root3.decorate(t)})
+          if (thenode.parentNode) thenode = thenode.parentNode
+          Carnap.checkFOLSequent(JSON.stringify(trimProof(2,thenode)),(t)=>{thenode.decorate(trimInfo(1,t))})
       },500)
 });
 
