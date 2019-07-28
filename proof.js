@@ -59,9 +59,11 @@ class ProofNode {
                     try {
                         try {ruleContainer.popper.destroy()} catch (e) {}
                         var msg = document.createElement("div");
+                        var wrapper = document.createElement("div");
                         msg.innerHTML = i;
-                        msg.setAttribute("class","rulePopper")
-                        ruleContainer.appendChild(msg);
+                        wrapper.setAttribute("class","rulePopper")
+                        wrapper.appendChild(msg);
+                        ruleContainer.appendChild(wrapper);
                         ruleContainer.setAttribute("class","rule " + c)
                         ruleContainer.popper = new Popper(ruleInput,msg,{
                             placement: "right",
