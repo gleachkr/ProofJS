@@ -12,6 +12,10 @@ input {
     font-size:12pt;
 }
 
+.label input {
+    text-align:center;
+}
+
 .label, .root {
     display: flex;
     flex-wrap: nowrap;
@@ -29,7 +33,10 @@ input {
     display: flex;
     flex-wrap: nowrap;
     flex-direction: row;
+    justify-content: center;
     align-items: flex-end;
+    padding-left:10px;
+    padding-right:10px;
 }
 
 .node {
@@ -58,13 +65,15 @@ input {
     top:.8em;
 }
 
-.node:last-child > .label > *:nth-child(3) > input {
-    font-size:8pt;
-}
 
 .waiting input { color: gray }
 
 .parse-error input, .feedback input { color: red }
+
+.rule input {
+    font-size:8pt;
+    position:absolute;
+}
 
 .rule > .rulePopper {
     position:absolute;

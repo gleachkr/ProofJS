@@ -1,13 +1,11 @@
 class ProofNode {
-    static input (init) {
+    static input (init,calcwidth) {
             var theInput = document.createElement("input")
-            if (init) {
-                theInput.value = init;
-                theInput.setAttribute("style","width:" + init.length + "ch");
-            }
+            if (init) theInput.value = init;
             else theInput.setAttribute("style","width:1ch");
+            theInput.setAttribute("style","width:" + calcwidth(theInput) + "ch");
             theInput.addEventListener('input', function () {
-                theInput.setAttribute("style","width:" + theInput.value.length + "ch");
+                theInput.setAttribute("style","width:" + calcwidth(theInput) + "ch");
             });
             return theInput
         };
@@ -39,7 +37,7 @@ class ProofNode {
                 if (childElt) {
                 var childLabel = childElt.lastChild
                 var ruleContainer = document.createElement("div");
-                var ruleInput = ProofNode.input(this.ruleContent);
+                var ruleInput = ProofNode.input(this.ruleContent, (i)=>{return i.value.length});
                 elt.ruleElt = ruleInput;
                 ruleContainer.setAttribute("class","rule");
                 childLabel.removeChild(childLabel.lastChild);
@@ -85,13 +83,21 @@ class ProofNode {
         if (!this.parentNode)  labelElt.setAttribute("class","root") 
         else labelElt.setAttribute("class","label");
         
-        var inputElt = ProofNode.input(this.label)
+        var inputElt = ProofNode.input(this.label,(i)=>{
+            if (!this.parentNode) return i.value.length
+            else {
+                var myShare = this.parentNode.label.length / this.parentNode.forest.length
+                return Math.max(i.value.length,myShare)
+            }
+        })
         this.on("labelChanged", (l) => {
             if (l != inputElt.value) {
                 inputElt.value = l;
-                inputElt.setAttribute("style","width:" + l.length + "ch");
+                inputElt.dispatchEvent(new Event('input'))
             }
         });
+        this.on("siblingsChanged", () => {inputElt.dispatchEvent(new Event('input'))});
+        this.on("parentChanged", () => {inputElt.dispatchEvent(new Event('input'))});
 
         inputElt.addEventListener('keyup', (e) => {
             if (e.code == "Enter" && e.ctrlKey) {
@@ -111,6 +117,7 @@ class ProofNode {
             };
             this.label = inputElt.value
             this.trigger("changed", true, this)
+            this.forest.map((n)=>{n.trigger("parentChanged")})
         });
 
         elt.setAttribute("class","node");
@@ -164,6 +171,7 @@ class ProofNode {
         var child = new ProofNode(obj);
         child.parentNode = this;
         this.forest.push(child);
+        this.forest.map((n) => {n.trigger("siblingsChanged")})
         this.trigger("newChild", false, child);
         this.trigger("changed", true, this);
         return child;
@@ -173,6 +181,7 @@ class ProofNode {
         if (this.parentNode) {
             this.trigger("removed",false);
             this.parentNode.forest.splice(this.parentNode.forest.indexOf(this),1);
+            this.parentNode.forest.map((n) => {n.trigger("siblingsChanged")})
         }
     };
 
