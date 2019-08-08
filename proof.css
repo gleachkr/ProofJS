@@ -35,8 +35,6 @@ input {
     flex-direction: row;
     justify-content: center;
     align-items: flex-end;
-    padding-left:10px;
-    padding-right:10px;
 }
 
 .node {
@@ -63,9 +61,15 @@ input {
     border-bottom: none;
     position:relative;
     top:.8em;
+}
+
+.node > .label > *:nth-child(1) {
     min-width:1em;
 }
 
+.node > .label > *:nth-child(3) {
+    min-width:1em;
+}
 
 .waiting input { color: gray }
 
