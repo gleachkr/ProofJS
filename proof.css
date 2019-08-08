@@ -63,6 +63,7 @@ input {
     border-bottom: none;
     position:relative;
     top:.8em;
+    min-width:1em;
 }
 
 
@@ -73,6 +74,12 @@ input {
 .rule input {
     font-size:8pt;
     position:absolute;
+    max-width:5em;
+    text-overflow:ellipsis;
+}
+
+.rule input:focus {
+    max-width:none;
 }
 
 .rule > .rulePopper {

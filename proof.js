@@ -40,18 +40,13 @@ class ProofNode {
                 var ruleInput = ProofNode.input(this.ruleContent, (i)=>{return i.value.length});
                 elt.ruleElt = ruleInput;
                 ruleContainer.setAttribute("class","rule");
-                childLabel.removeChild(childLabel.lastChild);
                 ruleContainer.appendChild(ruleInput);
+                childLabel.removeChild(childLabel.lastChild);
                 childLabel.appendChild(ruleContainer);
                 ruleInput.value = this.ruleContent;
                 ruleInput.addEventListener('input', () => {
                     this.ruleContent = ruleInput.value
                     this.trigger("changed", true, this);
-                });
-                this.on("ruleChanged", (r) => {
-                    ruleInput.setAttribute("style","width:" + ruleInput.value.length + "ch");
-                    labelElt.lastChild.setAttribute("style",
-                        "padding-right:" + (ruleInput.value.length * .6) + "ch");
                 });
                 this.on("infoChanged", (i,c) => {
                     try {
