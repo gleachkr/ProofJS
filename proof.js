@@ -21,7 +21,7 @@ class ProofNode {
         if (obj) {
             this.label = obj.label;
             this.rule = obj.rule;
-            obj.forest.map((o) => {this.addChild(o)})
+            obj.forest.map(o => {this.addChild(o)})
         };
     }
 
@@ -37,7 +37,7 @@ class ProofNode {
                 if (childElt) {
                 var childLabel = childElt.lastChild
                 var ruleContainer = document.createElement("div");
-                var ruleInput = ProofNode.input(this.ruleContent, (i)=>{return i.value.length});
+                var ruleInput = ProofNode.input(this.ruleContent, i => {return i.value.length});
                 elt.ruleElt = ruleInput;
                 ruleContainer.setAttribute("class","rule");
                 ruleContainer.appendChild(ruleInput);
@@ -70,7 +70,7 @@ class ProofNode {
             }
         }
 
-        var theChildElt = this.forest.map((n) => {return n.renderOn(forestElt)})[0]
+        var theChildElt = this.forest.map(n => {return n.renderOn(forestElt)})[0]
 
         if (this.forest.length > 0) { elt.addRule() }
 
@@ -78,14 +78,14 @@ class ProofNode {
         if (!this.parentNode)  labelElt.setAttribute("class","root") 
         else labelElt.setAttribute("class","label");
         
-        var inputElt = ProofNode.input(this.label,(i)=>{
+        var inputElt = ProofNode.input(this.label,i =>{
             if (!this.parentNode) return i.value.length
             else {
                 var myShare = this.parentNode.label.length / this.parentNode.forest.length
                 return Math.max(i.value.length,myShare)
             }
         })
-        this.on("labelChanged", (l) => {
+        this.on("labelChanged", l => {
             if (l != inputElt.value) {
                 inputElt.value = l;
                 inputElt.dispatchEvent(new Event('input'))
@@ -94,7 +94,7 @@ class ProofNode {
         this.on("siblingsChanged", () => {inputElt.dispatchEvent(new Event('input'))});
         this.on("parentChanged", () => {inputElt.dispatchEvent(new Event('input'))});
 
-        inputElt.addEventListener('keyup', (e) => {
+        inputElt.addEventListener('keyup', e => {
             if (e.code == "Enter" && e.ctrlKey) {
                 e.preventDefault()
                 var newNode = this.addChild()
@@ -112,7 +112,7 @@ class ProofNode {
             };
             this.label = inputElt.value
             this.trigger("changed", true, this)
-            this.forest.map((n)=>{n.trigger("parentChanged")})
+            this.forest.map(n =>{n.trigger("parentChanged")})
         });
 
         elt.setAttribute("class","node");
@@ -129,7 +129,7 @@ class ProofNode {
             if (this.parentNode.forest.length > 0) nodeAbove.addRule()
         });
 
-        this.on("newChild", (child) => { 
+        this.on("newChild", child => { 
             child.renderOn(forestElt)
             if (this.forest.length == 1) elt.addRule() 
         });
@@ -166,7 +166,7 @@ class ProofNode {
         var child = new ProofNode(obj);
         child.parentNode = this;
         this.forest.push(child);
-        this.forest.map((n) => {n.trigger("siblingsChanged")})
+        this.forest.map(n => {n.trigger("siblingsChanged")})
         this.trigger("newChild", false, child);
         this.trigger("changed", true, this);
         return child;
@@ -176,7 +176,7 @@ class ProofNode {
         if (this.parentNode) {
             this.trigger("removed",false);
             this.parentNode.forest.splice(this.parentNode.forest.indexOf(this),1);
-            this.parentNode.forest.map((n) => {n.trigger("siblingsChanged")})
+            this.parentNode.forest.map(n => {n.trigger("siblingsChanged")})
         }
     };
 
@@ -185,6 +185,14 @@ class ProofNode {
             label: this.label,
             rule: this.rule,
             forest: this.forest,
+        };
+    };
+
+    toInfo() {
+        return {
+            info: this.info,
+            class: this.class,
+            forest: this.forest.map(t => t.toInfoJSON()),
         };
     };
 
@@ -203,8 +211,8 @@ class ProofNode {
     replace(obj) {
         this.label = obj.label
         this.rule = obj.rule
-        this.forest.map((n) => {n.remove()});
-        obj.forest.map((o) => {this.addChild(o)});
+        this.forest.map(n => {n.remove()});
+        obj.forest.map(o => {this.addChild(o)});
     };
 
     on(eventName, handler) {
