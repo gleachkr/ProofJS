@@ -43,7 +43,7 @@
             </div>
         </div>
     </body>
-    <script id="alljs" src="./all.js"></script>
+    <script id="alljs" src="./all.new.js"></script>
     <script defer>
 
 var sandbox1 = document.getElementById('sandbox1');
@@ -345,6 +345,7 @@ var updateTimeout
 root2.on("changed",(thenode)=>{
   clearTimeout(updateTimeout)
   updateTimeout = setTimeout(function() {
+          if (thenode.label == "") {thenode.info = ""; thenode.class = "";}
           if (thenode.parentNode) thenode = thenode.parentNode
           Carnap.checkPropSequent(JSON.stringify(trimProof(2,thenode)),(t)=>{thenode.decorate(trimInfo(1,t))})
       },500)
@@ -353,6 +354,7 @@ root2.on("changed",(thenode)=>{
 root3.on("changed",(thenode)=>{
   clearTimeout(updateTimeout)
   updateTimeout = setTimeout(function() {
+          if (thenode.label == "") {thenode.info = ""; thenode.class = "";}
           if (thenode.parentNode) thenode = thenode.parentNode
           Carnap.checkFOLSequent(JSON.stringify(trimProof(2,thenode)),(t)=>{thenode.decorate(trimInfo(1,t))})
       },500)

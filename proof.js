@@ -192,7 +192,7 @@ class ProofNode {
         return {
             info: this.info,
             class: this.class,
-            forest: this.forest.map(t => t.toInfoJSON()),
+            forest: this.forest.map(t => t.toInfo()),
         };
     };
 
