@@ -244,4 +244,9 @@ class ProofRoot extends ProofNode {
     constructor(obj) {
         super(obj)
     };
+
+    renderOn(target) {
+        var elt = super.renderOn(target)
+        elt.inputElt.setAttribute("readonly","readonly")
+    }
 };
