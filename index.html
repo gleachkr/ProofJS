@@ -17,9 +17,7 @@
             <p>Cycle nodes with <code>Tab</code> and <code>Shift-Tab</code>.</p>
             <p>Delete nodes with <code>Ctrl-Backspace</code>.</p>
             <p>
-                Mouse over rule labels for annotations. These are automatically
-                updated on the sequent proofs, but not on the Gentzen-Prawitz
-                proof.
+                Mouse over rule labels for annotations, including errors and calculated sequents for the Gentzen-Prawitz tree.
             </p>
         </div>
         <div style="margin-bottom:10px; display:flex;flex-wrap:wrap">
@@ -54,7 +52,7 @@ var jsonDisplay1 = document.getElementById('json1');
 var jsonDisplay2 = document.getElementById('json2');
 var jsonDisplay3 = document.getElementById('json3');
 
-var root1 = new ProofRoot(
+var root1 = new ProofNode(
 {
   "label": "(P->Q)->((R->P)->(R->Q))",
   "rule": "->I(1)",
@@ -120,7 +118,7 @@ var root1 = new ProofRoot(
 }
 );
 
-var root2 = new ProofRoot(
+var root2 = new ProofNode(
 {
   "label": "P,P->Q:|-:Q",
   "rule": "L->",
@@ -156,7 +154,7 @@ var root2 = new ProofRoot(
 }
 );
 
-var root3 = new ProofRoot(
+var root3 = new ProofNode(
 {
   "label": "AxEy(F(x)/\\G(y)):|-:EyAx(F(x)/\\G(y))",
   "rule": "RE",
@@ -332,8 +330,9 @@ else { return ({info: obj.info, class: obj.class, forest: obj.forest.map((t)=>{r
 function slowLoad () {
     setTimeout(function () {
         try {
-                Carnap.checkPropSequent(JSON.stringify(root2),(t)=>{root2.decorate(t)});
-                Carnap.checkFOLSequent(JSON.stringify(root3),(t)=>{root3.decorate(t)});
+                Carnap.checkProofTreeInfo(root1,(t)=>{root1.decorate(t)})
+                Carnap.checkPropSequent(root2,(t)=>{root2.decorate(t)});
+                Carnap.checkFOLSequent(root3,(t)=>{root3.decorate(t)});
             }
         catch (e) {slowLoad()}
     },100)
@@ -342,12 +341,21 @@ function slowLoad () {
 slowLoad()
 
 var updateTimeout
+
+
+root1.on("changed",(thenode)=>{
+  clearTimeout(updateTimeout)
+  updateTimeout = setTimeout(function() {
+          Carnap.checkProofTreeInfo(root1,(t)=>{root1.decorate(t)})
+      },500)
+});
+
 root2.on("changed",(thenode)=>{
   clearTimeout(updateTimeout)
   updateTimeout = setTimeout(function() {
           if (thenode.label == "") {thenode.info = ""; thenode.class = "";}
           if (thenode.parentNode) thenode = thenode.parentNode
-          Carnap.checkPropSequent(JSON.stringify(trimProof(2,thenode)),(t)=>{thenode.decorate(trimInfo(1,t))})
+          Carnap.checkPropSequent(trimProof(2,thenode),(t)=>{thenode.decorate(trimInfo(1,t))})
       },500)
 });
 
@@ -356,7 +364,7 @@ root3.on("changed",(thenode)=>{
   updateTimeout = setTimeout(function() {
           if (thenode.label == "") {thenode.info = ""; thenode.class = "";}
           if (thenode.parentNode) thenode = thenode.parentNode
-          Carnap.checkFOLSequent(JSON.stringify(trimProof(2,thenode)),(t)=>{thenode.decorate(trimInfo(1,t))})
+          Carnap.checkFOLSequent(trimProof(2,thenode),(t)=>{thenode.decorate(trimInfo(1,t))})
       },500)
 });
 
