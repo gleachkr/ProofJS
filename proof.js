@@ -177,6 +177,7 @@ class ProofNode {
             this.trigger("removed",false);
             this.parentNode.forest.splice(this.parentNode.forest.indexOf(this),1);
             this.parentNode.forest.map(n => {n.trigger("siblingsChanged")})
+            if (this.parentNode.forest.length == 0) this.parentNode.rule = ""
         }
     };
 
