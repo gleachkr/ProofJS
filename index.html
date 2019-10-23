@@ -15,6 +15,7 @@
             <p>Press <code>Enter</code> to create a new sibling node.</p>
             <p>Press <code>Ctrl-Enter</code> to create a new parent node.</p>
             <p>Cycle nodes with <code>Tab</code> and <code>Shift-Tab</code>.</p>
+            <p>Undo and Redo changes with <code>Ctrl-Z</code> and <code>Ctrl-Shift-Z</code>.</p>
             <p>Delete nodes with <code>Ctrl-Backspace</code>.</p>
             <p>
                 Mouse over rule labels for annotations, including errors and calculated sequents for the Gentzen-Prawitz tree.
@@ -41,7 +42,7 @@
             </div>
         </div>
     </body>
-    <script id="alljs" src="./all.js"></script>
+    <script id="alljs" src="./all.new.js"></script>
     <script defer>
 
 var sandbox1 = document.getElementById('sandbox1');
@@ -52,7 +53,7 @@ var jsonDisplay1 = document.getElementById('json1');
 var jsonDisplay2 = document.getElementById('json2');
 var jsonDisplay3 = document.getElementById('json3');
 
-var root1 = new ProofNode(
+var root1 = new DeductionRoot(
 {
   "label": "(P->Q)->((R->P)->(R->Q))",
   "rule": "->I(1)",
@@ -118,7 +119,7 @@ var root1 = new ProofNode(
 }
 );
 
-var root2 = new ProofNode(
+var root2 = new DeductionRoot(
 {
   "label": "P,P->Q:|-:Q",
   "rule": "L->",
@@ -154,7 +155,7 @@ var root2 = new ProofNode(
 }
 );
 
-var root3 = new ProofNode(
+var root3 = new DeductionRoot(
 {
   "label": "AxEy(F(x)/\\G(y)):|-:EyAx(F(x)/\\G(y))",
   "rule": "RE",

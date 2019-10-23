@@ -1,4 +1,4 @@
-class ProofNode {
+class DeductionNode {
     static input (init,calcwidth) {
             var theInput = document.createElement("input")
             if (init) theInput.value = init;
@@ -16,7 +16,7 @@ class ProofNode {
         this.ruleContent = "";
         this.infoContent = "";
         this.class = "";
-        this.parentNode = null
+        this.parentNode = null;
 
         if (obj) {
             this.label = obj.label;
@@ -37,7 +37,7 @@ class ProofNode {
                 if (childElt) {
                 var childLabel = childElt.lastChild
                 var ruleContainer = document.createElement("div");
-                var ruleInput = ProofNode.input(this.ruleContent, i => {return i.value.length});
+                var ruleInput = DeductionNode.input(this.ruleContent, i => {return i.value.length});
                 elt.ruleElt = ruleInput;
                 ruleContainer.setAttribute("class","rule");
                 ruleContainer.appendChild(ruleInput);
@@ -72,13 +72,19 @@ class ProofNode {
 
         var theChildElt = this.forest.map(n => {return n.renderOn(forestElt)})[0]
 
-        if (this.forest.length > 0) { elt.addRule() }
+        if (this.forest.length > 0) elt.addRule()
 
         var labelElt = document.createElement("div");
-        if (!this.parentNode)  labelElt.setAttribute("class","root") 
-        else labelElt.setAttribute("class","label");
+        if (!this.parentNode) {
+            labelElt.setAttribute("class","root") 
+            elt.rootElt = () => {return elt}
+        }
+        else {
+            labelElt.setAttribute("class","label");
+            elt.rootElt = () => {return elt.parentElement.parentElement.rootElt()}
+        }
         
-        var inputElt = ProofNode.input(this.label,i =>{
+        var inputElt = DeductionNode.input(this.label,i =>{
             if (!this.parentNode) return i.value.length
             else {
                 var myShare = this.parentNode.label.length / this.parentNode.forest.length
@@ -94,6 +100,7 @@ class ProofNode {
         this.on("siblingsChanged", () => {inputElt.dispatchEvent(new Event('input'))});
         this.on("parentChanged", () => {inputElt.dispatchEvent(new Event('input'))});
 
+        inputElt.addEventListener('keydown', e => { if (e.code == "KeyZ" && e.ctrlKey) e.preventDefault()})
         inputElt.addEventListener('keyup', e => {
             if (e.code == "Enter" && e.ctrlKey) {
                 e.preventDefault()
@@ -109,6 +116,12 @@ class ProofNode {
                 this.remove()
                 parentElt.inputElt.focus()
                 this.parentNode.trigger("changed", true, this)
+            } else if (e.code == "KeyZ" && e.ctrlKey && e.shiftKey) {
+                e.preventDefault()
+                this.trigger("redo",true,elt)
+            } else if (e.code == "KeyZ" && e.ctrlKey) {
+                e.preventDefault()
+                this.trigger("undo",true,elt)
             };
             this.label = inputElt.value
             this.trigger("changed", true, this)
@@ -163,7 +176,7 @@ class ProofNode {
     };
 
     addChild(obj) {
-        var child = new ProofNode(obj);
+        var child = new DeductionNode(obj);
         child.parentNode = this;
         this.forest.push(child);
         this.forest.map(n => {n.trigger("siblingsChanged")})
@@ -241,11 +254,46 @@ class ProofNode {
     };
 };
 
-class ProofRoot extends ProofNode {
+class DeductionRoot extends DeductionNode {
     constructor(obj) {
         super(obj)
+        this.history = []
+        this.present= JSON.stringify(this)
+        this.future= []
+        this.undoTimeout = false
+        this.on("changed",() => {
+            this.updateTimeout = setTimeout(() => {
+                var newState = JSON.stringify(this)
+                if (newState != this.present) {
+                    this.history.push(this.present)
+                    this.future = []
+                    this.present = newState
+                }
+                this.undoTimeout = false
+            }, 500)
+        })
+        this.on("undo", (e) => {
+            if (this.history.length > 0 && !this.undoTimeout) {
+                var theRootElt = e.rootElt()
+                this.future.push(this.present)
+                this.replace(JSON.parse(this.history.pop()))
+                this.present=JSON.stringify(this)
+                theRootElt.inputElt.focus()
+            }
+        })
+        this.on("redo", (e) => {
+            if (this.future.length > 0 && !this.undoTimeout) {
+                var theRootElt = e.rootElt()
+                this.history.push(this.present)
+                this.replace(JSON.parse(this.future.pop()))
+                this.present=JSON.stringify(this)
+                theRootElt.inputElt.focus()
+            }
+        })
     };
+};
 
+class ProofRoot extends DeductionRoot {
     renderOn(target) {
         var elt = super.renderOn(target)
         elt.inputElt.setAttribute("readonly","readonly")
