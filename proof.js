@@ -1,3 +1,5 @@
+var ProofIDCounter = 0;
+
 class DeductionNode {
     static input (init,calcwidth) {
             var theInput = document.createElement("input")
@@ -17,37 +19,34 @@ class DeductionNode {
         this.infoContent = "";
         this.class = "";
         this.parentNode = null;
-
+        this.ident = ProofIDCounter++;
         if (obj) {
             this.label = obj.label;
             this.rule = obj.rule;
-            if (obj.forest) obj.forest.map(o => {this.addChild(o)})
+            if (obj.ident) this.ident = obj.ident
+            if (obj.forest) obj.forest.map(o => this.addChild(o))
         };
     }
 
-    renderOn(target) {
-        var elt = document.createElement("div");
-
-        var forestElt = document.createElement("div");
-        elt.forestElt = forestElt
-        forestElt.setAttribute("class","forest");
-
-        elt.addRule = () => {
-            var childElt = forestElt.lastChild
-                if (childElt) {
+    addRule(elt) {
+            var childElt = elt.forest.lastChild
+            if (childElt) {
                 var childLabel = childElt.lastChild
                 var ruleContainer = document.createElement("div");
-                var ruleInput = DeductionNode.input(this.ruleContent, i => {return i.value.length});
-                elt.ruleElt = ruleInput;
+                elt.rule = DeductionNode.input(this.ruleContent, i => i.value.length);
                 ruleContainer.setAttribute("class","rule");
-                ruleContainer.appendChild(ruleInput);
+                ruleContainer.appendChild(elt.rule);
                 childLabel.removeChild(childLabel.lastChild);
                 childLabel.appendChild(ruleContainer);
-                ruleInput.value = this.ruleContent;
-                ruleInput.addEventListener('input', () => {
-                    this.ruleContent = ruleInput.value
+                elt.rule.value = this.ruleContent;
+                elt.rule.addEventListener('input', _ => {
+                    this.ruleContent = elt.rule.value
                     this.trigger("changed", true, this);
                 });
+                this.on("ruleChanged", r => {
+                    elt.rule.value = r
+                    elt.rule.dispatchEvent(new Event('input'))
+                })
                 this.on("infoChanged", (i,c) => {
                     try {
                         try {ruleContainer.popper.destroy()} catch (e) {}
@@ -58,59 +57,72 @@ class DeductionNode {
                         wrapper.appendChild(msg);
                         ruleContainer.appendChild(wrapper);
                         ruleContainer.setAttribute("class","rule " + c)
-                        ruleContainer.popper = new Popper(ruleInput,msg,{
+                        ruleContainer.popper = new Popper(elt.rule,msg,{
                             placement: "right",
                             removeOnDestroy: true,
                         });
                     } catch(e) {
                         console.log(e)
-                        ruleInput.setAttribute("title", i);
+                        elt.rule.setAttribute("title", i);
                     }
                 });
             }
         }
 
-        var theChildElt = this.forest.map(n => {return n.renderOn(forestElt)})[0]
-
-        if (this.forest.length > 0) elt.addRule()
-
-        var labelElt = document.createElement("div");
-        if (!this.parentNode) {
-            labelElt.setAttribute("class","root") 
-            elt.rootElt = () => {return elt}
-        }
-        else {
-            labelElt.setAttribute("class","label");
-            elt.rootElt = () => {return elt.parentElement.parentElement.rootElt()}
-        }
-        
-        var inputElt = DeductionNode.input(this.label,i =>{
+    renderOn(target) {
+        // create elements
+        var elt = document.createElement("div");
+        elt.forest = document.createElement("div");
+        elt.label = document.createElement("div");
+        elt.input = DeductionNode.input(this.label,i => {
             if (!this.parentNode) return i.value.length
             else {
                 var myShare = this.parentNode.label.length / this.parentNode.forest.length
                 return Math.max(i.value.length,myShare)
             }
         })
+        if (!this.parentNode) elt.rootElt = _ => elt
+        else elt.rootElt = _ => elt.parentElement.parentElement.rootElt()
+        this.forest.map(n => {return n.renderOn(elt.forest)})[0]
+        if (this.forest.length > 0) this.addRule(elt)
+        
+        // decorate with attributes
+        elt.setAttribute("class","node");
+        elt.forest.setAttribute("class","forest");
+        if (!this.parentNode) elt.label.setAttribute("class","root") 
+        else elt.label.setAttribute("class","label");
+        if (this.ident) elt.input.setAttribute("data-proof-id", this.ident) 
+
+        // set up event listeners
         this.on("labelChanged", l => {
-            if (l != inputElt.value) {
-                inputElt.value = l;
-                inputElt.dispatchEvent(new Event('input'))
+            if (l != elt.input.value) {
+                elt.input.value = l;
+                elt.input.dispatchEvent(new Event('input'))
             }
         });
-        this.on("siblingsChanged", () => {inputElt.dispatchEvent(new Event('input'))});
-        this.on("parentChanged", () => {inputElt.dispatchEvent(new Event('input'))});
+        this.on("siblingsChanged", () => elt.input.dispatchEvent(new Event('input')));
+        this.on("parentChanged", () => elt.input.dispatchEvent(new Event('input')));
+        this.on("removed", () => { 
+            var nodeAbove = elt.parentElement.parentElement
+            elt.parentElement.removeChild(elt);
+            if (this.parentNode.forest.length > 0) this.addRule(nodeAbove)
+        });
+        this.on("newChild", child => { 
+            child.renderOn(elt.forest)
+            if (this.forest.length == 1) this.addRule(elt) 
+        });
 
-        inputElt.addEventListener('keydown', e => { if (e.code == "KeyZ" && e.ctrlKey) e.preventDefault()})
-        inputElt.addEventListener('keyup', e => {
+        elt.input.addEventListener('keydown', e => {if (e.code == "KeyZ" && e.ctrlKey) e.preventDefault()})
+        elt.input.addEventListener('keyup', e => {
             if (e.code == "Enter" && e.ctrlKey) {
                 e.preventDefault()
                 var newNode = this.addChild()
-                if (this.forest.length == 1) elt.ruleElt.focus();
-                else forestElt.firstChild.inputElt.focus();
+                if (this.forest.length == 1) elt.rule.focus();
+                else elt.forest.firstChild.elt.input.focus();
             } else if (e.code == "Enter") {
                 e.preventDefault();
                 var newNode = this.parentNode.addChild();
-                elt.parentElement.firstChild.inputElt.focus()
+                elt.parentElement.firstChild.elt.input.focus()
             } else if (e.code == "Backspace" && e.ctrlKey) {
                 var parentElt = elt.parentElement.parentElement;
                 this.remove()
@@ -118,34 +130,22 @@ class DeductionNode {
                 this.parentNode.trigger("changed", true, this)
             } else if (e.code == "KeyZ" && e.ctrlKey && e.shiftKey) {
                 e.preventDefault()
-                this.trigger("redo",true,elt)
+                this.trigger("redo",true,elt,this.ident)
             } else if (e.code == "KeyZ" && e.ctrlKey) {
                 e.preventDefault()
-                this.trigger("undo",true,elt)
+                this.trigger("undo",true, elt, this.ident)
             };
-            this.label = inputElt.value
+            this.label = elt.input.value
             this.trigger("changed", true, this)
-            this.forest.map(n =>{n.trigger("parentChanged")})
+            this.forest.map(n => n.trigger("parentChanged"))
         });
 
-        elt.setAttribute("class","node");
-        elt.appendChild(forestElt);
-        elt.appendChild(labelElt);
-        labelElt.appendChild(document.createElement("div"));
-        labelElt.appendChild(inputElt);
-        labelElt.appendChild(document.createElement("div"));
-        elt.inputElt = inputElt;
-
-        this.on("removed", () => { 
-            var nodeAbove = elt.parentElement.parentElement
-            elt.parentElement.removeChild(elt);
-            if (this.parentNode.forest.length > 0) nodeAbove.addRule()
-        });
-
-        this.on("newChild", child => { 
-            child.renderOn(forestElt)
-            if (this.forest.length == 1) elt.addRule() 
-        });
+        // construct everything
+        elt.appendChild(elt.forest);
+        elt.appendChild(elt.label);
+        elt.label.appendChild(document.createElement("div"));
+        elt.label.appendChild(elt.input);
+        elt.label.appendChild(document.createElement("div"));
 
         target.prepend(elt);
 
@@ -179,7 +179,7 @@ class DeductionNode {
         var child = new DeductionNode(obj);
         child.parentNode = this;
         this.forest.push(child);
-        this.forest.map(n => {n.trigger("siblingsChanged")})
+        this.forest.map(n => n.trigger("siblingsChanged"))
         this.trigger("newChild", false, child);
         this.trigger("changed", true, this);
         return child;
@@ -189,7 +189,7 @@ class DeductionNode {
         if (this.parentNode) {
             this.trigger("removed",false);
             this.parentNode.forest.splice(this.parentNode.forest.indexOf(this),1);
-            this.parentNode.forest.map(n => {n.trigger("siblingsChanged")})
+            this.parentNode.forest.map(n => n.trigger("siblingsChanged"))
             if (this.parentNode.forest.length == 0) this.parentNode.rule = ""
         }
     };
@@ -198,6 +198,7 @@ class DeductionNode {
         return {
             label: this.label,
             rule: this.rule,
+            ident: this.ident,
             forest: this.forest,
         };
     };
@@ -223,10 +224,11 @@ class DeductionNode {
     };
 
     replace(obj) {
+        var len = this.forest.length;
+        for (var i = 0; i < len; i++) this.forest[0].remove()
+        obj.forest.map(o => this.addChild(o));
         this.label = obj.label
         this.rule = obj.rule
-        this.forest.map(n => {n.remove()});
-        obj.forest.map(o => {this.addChild(o)});
     };
 
     on(eventName, handler) {
@@ -238,17 +240,12 @@ class DeductionNode {
     off(eventName, handler) {
       let handlers = this._eventHandlers && this._eventHandlers[eventName];
       if (!handlers) return;
-      for (let i = 0; i < handlers.length; i++) {
-        if (handlers[i] === handler) {
-          handlers.splice(i--, 1);
-        }
-      };
+      var len = handlers.length
+      for (let i = 0; i < len; i++) if (handlers[i] === handler) handlers.splice(i--, 1);
     };
 
     trigger(eventName, bubble, ...args) {
-      if (bubble && this.parentNode) {
-          this.parentNode.trigger(eventName, bubble, ...args)
-      }
+      if (bubble && this.parentNode) this.parentNode.trigger(eventName, bubble, ...args)
       if (!this._eventHandlers || !this._eventHandlers[eventName]) return;
       this._eventHandlers[eventName].forEach(handler => handler.apply(this, args));
     };
@@ -272,22 +269,22 @@ class DeductionRoot extends DeductionNode {
                 this.undoTimeout = false
             }, 500)
         })
-        this.on("undo", (e) => {
+        this.on("undo", (e,i) => {
             if (this.history.length > 0 && !this.undoTimeout) {
                 var theRootElt = e.rootElt()
                 this.future.push(this.present)
                 this.replace(JSON.parse(this.history.pop()))
                 this.present=JSON.stringify(this)
-                theRootElt.inputElt.focus()
+                theRootElt.querySelector("[data-proof-id='" + i + "']").focus()
             }
         })
-        this.on("redo", (e) => {
+        this.on("redo", (e,i) => {
             if (this.future.length > 0 && !this.undoTimeout) {
                 var theRootElt = e.rootElt()
                 this.history.push(this.present)
                 this.replace(JSON.parse(this.future.pop()))
                 this.present=JSON.stringify(this)
-                theRootElt.inputElt.focus()
+                theRootElt.querySelector("[data-proof-id='" + i + "']").focus()
             }
         })
     };
@@ -296,6 +293,6 @@ class DeductionRoot extends DeductionNode {
 class ProofRoot extends DeductionRoot {
     renderOn(target) {
         var elt = super.renderOn(target)
-        elt.inputElt.setAttribute("readonly","readonly")
+        elt.input.setAttribute("readonly","readonly")
     }
 };
