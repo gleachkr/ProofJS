@@ -28,12 +28,27 @@ class DeductionNode {
         };
     }
 
-    addRule(elt) {
+    renderOn(target) {
+        // create element with proprties and methods
+        var elt = document.createElement("div");
+        elt.forest = document.createElement("div");
+        elt.label = document.createElement("div");
+        elt.input = DeductionNode.input(this.label,i => {
+            if (!this.parentNode) return i.value.length
+            else {
+                var myShare = this.parentNode.label.length / this.parentNode.forest.length
+                return Math.max(i.value.length,myShare)
+            }
+        })
+        if (!this.parentNode) elt.rootElt = _ => elt
+        else elt.rootElt = _ => elt.parentElement.parentElement.rootElt()
+        this.forest.map(n => {return n.renderOn(elt.forest)})[0]
+        elt.addRule = () => {
             var childElt = elt.forest.lastChild
             if (childElt) {
                 var childLabel = childElt.lastChild
                 var ruleContainer = document.createElement("div");
-                elt.rule = DeductionNode.input(this.ruleContent, i => i.value.length);
+                elt.rule = DeductionNode.input(this.ruleContent, i => i.value.length);;
                 ruleContainer.setAttribute("class","rule");
                 ruleContainer.appendChild(elt.rule);
                 childLabel.removeChild(childLabel.lastChild);
@@ -68,23 +83,7 @@ class DeductionNode {
                 });
             }
         }
-
-    renderOn(target) {
-        // create elements
-        var elt = document.createElement("div");
-        elt.forest = document.createElement("div");
-        elt.label = document.createElement("div");
-        elt.input = DeductionNode.input(this.label,i => {
-            if (!this.parentNode) return i.value.length
-            else {
-                var myShare = this.parentNode.label.length / this.parentNode.forest.length
-                return Math.max(i.value.length,myShare)
-            }
-        })
-        if (!this.parentNode) elt.rootElt = _ => elt
-        else elt.rootElt = _ => elt.parentElement.parentElement.rootElt()
-        this.forest.map(n => {return n.renderOn(elt.forest)})[0]
-        if (this.forest.length > 0) this.addRule(elt)
+        if (this.forest.length > 0) elt.addRule()
         
         // decorate with attributes
         elt.setAttribute("class","node");
@@ -105,11 +104,11 @@ class DeductionNode {
         this.on("removed", () => { 
             var nodeAbove = elt.parentElement.parentElement
             elt.parentElement.removeChild(elt);
-            if (this.parentNode.forest.length > 0) this.addRule(nodeAbove)
+            if (this.parentNode.forest.length > 0) nodeAbove.addRule()
         });
         this.on("newChild", child => { 
             child.renderOn(elt.forest)
-            if (this.forest.length == 1) this.addRule(elt) 
+            if (this.forest.length == 1) elt.addRule() 
         });
 
         elt.input.addEventListener('keydown', e => {if (e.code == "KeyZ" && e.ctrlKey) e.preventDefault()})
