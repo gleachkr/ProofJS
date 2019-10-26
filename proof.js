@@ -131,9 +131,13 @@ class DeductionNode {
         elt.input.addEventListener('keydown', e => {if (e.code == "KeyX" && e.shiftKey && e.ctrlKey) e.preventDefault()})
         elt.input.addEventListener('keyup', e => {
             let parentElt = elt.parentElement.parentElement;
-            if (e.code == "Enter" && e.ctrlKey) {
+            if (e.code == "Enter" && e.ctrlKey && e.shiftKey) {
+                e.preventDefault()
+                this.addParent()
+            } else if (e.code == "Enter" && e.ctrlKey) {
                 e.preventDefault()
                 this.addChild()
+                try {parentElt.input.focus()} catch {elt.rootElt.input.focus()}
                 if (this.forest.length == 1) elt.rule.focus();
                 else elt.forest.firstChild.elt.input.focus();
             } else if (e.code == "Enter") {
@@ -211,6 +215,12 @@ class DeductionNode {
         this.trigger("newChild", false, child);
         this.trigger("changed", true, this);
         return child;
+    };
+
+    addParent() {
+        var parent = new DeductionNode();
+        parent.addChild(this)
+        this.replace(parent)
     };
 
     remove() {
