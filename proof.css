@@ -12,9 +12,7 @@ input {
     font-size:12pt;
 }
 
-.label input {
-    text-align:center;
-}
+.label input { text-align:center }
 
 .label, .root {
     display: flex;
@@ -86,6 +84,8 @@ input {
 .rule input:focus {
     max-width:none;
 }
+
+.rule input:not(:valid) { background:#eeeeee }
 
 .rule > .rulePopper {
     position:absolute;

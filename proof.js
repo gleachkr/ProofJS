@@ -16,15 +16,16 @@ class DeductionNode {
     }
 
     static input (init,calcwidth) {
-            var theInput = document.createElement("input")
-            if (init) theInput.value = init;
-            else theInput.setAttribute("style","width:1ch");
+        var theInput = document.createElement("input")
+        theInput.setAttribute("required","required")
+        if (init) theInput.value = init;
+        else theInput.setAttribute("style","width:1ch");
+        theInput.setAttribute("style","width:" + calcwidth(theInput) + "ch");
+        theInput.addEventListener('input', function () {
             theInput.setAttribute("style","width:" + calcwidth(theInput) + "ch");
-            theInput.addEventListener('input', function () {
-                theInput.setAttribute("style","width:" + calcwidth(theInput) + "ch");
-            });
-            return theInput
-        };
+        });
+        return theInput
+    };
 
     constructor(obj) { 
         this.forest = [];
@@ -48,10 +49,10 @@ class DeductionNode {
         elt.forest = document.createElement("div");
         elt.label = document.createElement("div");
         elt.input = DeductionNode.input(this.label,i => {
-            if (!this.parentNode) return i.value.length
+            if (!this.parentNode) return Math.max(i.value.length,1)
             else {
                 var myShare = this.parentNode.label.length / this.parentNode.forest.length
-                return Math.max(i.value.length,myShare)
+                return Math.max(i.value.length,myShare,1)
             }
         })
         if (!this.parentNode) elt.rootElt = _ => elt
@@ -62,7 +63,7 @@ class DeductionNode {
             if (childElt) {
                 var childLabel = childElt.lastChild
                 var ruleContainer = document.createElement("div");
-                elt.rule = DeductionNode.input(this.ruleContent, i => i.value.length);;
+                elt.rule = DeductionNode.input(this.ruleContent, i => Math.max(1,i.value.length));;
                 ruleContainer.setAttribute("class","rule");
                 ruleContainer.appendChild(elt.rule);
                 childLabel.removeChild(childLabel.lastChild);
