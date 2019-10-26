@@ -1,7 +1,20 @@
-var ProofIDCounter = 0;
-var ProofClipboard
-
 class DeductionNode {
+
+    static set Clipboard(s) {
+        try {window.localStorage.setItem("proofJSClipboard",s)}
+        catch {DeductionNode.ClipboardContent = s}
+    }
+
+    static get Clipboard() {
+        try {return window.localStorage.getItem("proofJSClipboard")}
+        catch {return DeductionNode.ClipboardContent || ""}
+    }
+
+    static get IDCounter() {
+        DeductionNode.IDCount = (DeductionNode.IDCount + 1) || 0
+        return DeductionNode.IDCount
+    }
+
     static input (init,calcwidth) {
             var theInput = document.createElement("input")
             if (init) theInput.value = init;
@@ -20,7 +33,7 @@ class DeductionNode {
         this.infoContent = "";
         this.class = "";
         this.parentNode = null;
-        this.ident = ProofIDCounter++;
+        this.ident = DeductionNode.IDCounter;
         if (obj) {
             this.label = obj.label;
             this.rule = obj.rule;
@@ -117,19 +130,19 @@ class DeductionNode {
         elt.input.addEventListener('keydown', e => {if (e.code == "KeyV" && e.shiftKey && e.ctrlKey) e.preventDefault()})
         elt.input.addEventListener('keydown', e => {if (e.code == "KeyX" && e.shiftKey && e.ctrlKey) e.preventDefault()})
         elt.input.addEventListener('keyup', e => {
+            let parentElt = elt.parentElement.parentElement;
             if (e.code == "Enter" && e.ctrlKey) {
                 e.preventDefault()
-                var newNode = this.addChild()
+                this.addChild()
                 if (this.forest.length == 1) elt.rule.focus();
                 else elt.forest.firstChild.elt.input.focus();
             } else if (e.code == "Enter") {
                 e.preventDefault();
-                var newNode = this.parentNode.addChild();
+                this.parentNode.addChild();
                 elt.parentElement.firstChild.elt.input.focus()
             } else if (e.code == "Backspace" && e.ctrlKey) {
-                var parentElt = elt.parentElement.parentElement;
                 this.remove()
-                parentElt.inputElt.focus()
+                try {parentElt.input.focus()} catch {elt.rootElt.input.focus()}
                 this.parentNode.trigger("changed", true, this)
             } else if (e.code == "KeyZ" && e.ctrlKey && e.shiftKey) {
                 e.preventDefault()
@@ -139,14 +152,16 @@ class DeductionNode {
                 this.trigger("undo",true, elt, this.ident)
             } else if (e.code == "KeyC" && e.shiftKey && e.ctrlKey) {
                 e.preventDefault()
-                ProofClipboard = JSON.stringify(this)
+                DeductionNode.Clipboard = JSON.stringify(this)
             } else if (e.code == "KeyX" && e.shiftKey && e.ctrlKey) {
                 e.preventDefault()
-                ProofClipboard = JSON.stringify(this)
-                this.replace({label: "", forest: []})
+                DeductionNode.Clipboard = JSON.stringify(this)
+                this.remove()
+                try {parentElt.input.focus()} catch {elt.rootElt.input.focus()}
+                this.parentNode.trigger("changed", true, this)
             } else if (e.code == "KeyV" && e.shiftKey && e.ctrlKey) {
                 e.preventDefault()
-                this.replace(new DeductionNode(JSON.parse(ProofClipboard)).scrubIdent())
+                this.replace(new DeductionNode(JSON.parse(DeductionNode.Clipboard)).scrubIdent())
             };
             this.label = elt.input.value
             this.trigger("changed", true, this)
@@ -271,6 +286,7 @@ class DeductionNode {
       this._eventHandlers[eventName].forEach(handler => handler.apply(this, args));
     };
 };
+
 
 class DeductionRoot extends DeductionNode {
     constructor(obj) {
