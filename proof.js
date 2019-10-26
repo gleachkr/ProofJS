@@ -1,4 +1,5 @@
 var ProofIDCounter = 0;
+var ProofClipboard
 
 class DeductionNode {
     static input (init,calcwidth) {
@@ -112,6 +113,9 @@ class DeductionNode {
         });
 
         elt.input.addEventListener('keydown', e => {if (e.code == "KeyZ" && e.ctrlKey) e.preventDefault()})
+        elt.input.addEventListener('keydown', e => {if (e.code == "KeyC" && e.shiftKey && e.ctrlKey) e.preventDefault()})
+        elt.input.addEventListener('keydown', e => {if (e.code == "KeyV" && e.shiftKey && e.ctrlKey) e.preventDefault()})
+        elt.input.addEventListener('keydown', e => {if (e.code == "KeyX" && e.shiftKey && e.ctrlKey) e.preventDefault()})
         elt.input.addEventListener('keyup', e => {
             if (e.code == "Enter" && e.ctrlKey) {
                 e.preventDefault()
@@ -133,6 +137,16 @@ class DeductionNode {
             } else if (e.code == "KeyZ" && e.ctrlKey) {
                 e.preventDefault()
                 this.trigger("undo",true, elt, this.ident)
+            } else if (e.code == "KeyC" && e.shiftKey && e.ctrlKey) {
+                e.preventDefault()
+                ProofClipboard = JSON.stringify(this)
+            } else if (e.code == "KeyX" && e.shiftKey && e.ctrlKey) {
+                e.preventDefault()
+                ProofClipboard = JSON.stringify(this)
+                this.replace({label: "", forest: []})
+            } else if (e.code == "KeyV" && e.shiftKey && e.ctrlKey) {
+                e.preventDefault()
+                this.replace(new DeductionNode(JSON.parse(ProofClipboard)).scrubIdent())
             };
             this.label = elt.input.value
             this.trigger("changed", true, this)
@@ -199,6 +213,14 @@ class DeductionNode {
             rule: this.rule,
             ident: this.ident,
             forest: this.forest,
+        };
+    };
+
+    scrubIdent() {
+        return {
+            label: this.label,
+            rule: this.rule,
+            forest: this.forest.map(t => t.scrubIdent()),
         };
     };
 
