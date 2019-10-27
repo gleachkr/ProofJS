@@ -98,6 +98,9 @@ input {
     z-index:1;
 }
 
+.popper[x-placement="left"] > div { float:right; }
+
+
 .popper > div {
     background: white;
     display:inline-block;
