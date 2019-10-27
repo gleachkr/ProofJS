@@ -17,7 +17,6 @@ class DeductionNode {
 
     static input (init,calcwidth) {
         var theInput = document.createElement("input")
-        theInput.setAttribute("required","required")
         if (init) theInput.value = init;
         else theInput.setAttribute("style","width:1ch");
         theInput.setAttribute("style","width:" + calcwidth(theInput) + "ch");
@@ -59,11 +58,12 @@ class DeductionNode {
         else elt.rootElt = _ => elt.parentElement.parentElement.rootElt()
         this.forest.map(n => {return n.renderOn(elt.forest)})[0]
         elt.addRule = () => {
-            var childElt = elt.forest.lastChild
+            var childElt = elt.forest.lastChild || false
             if (childElt) {
                 var childLabel = childElt.lastChild
                 var ruleContainer = document.createElement("div");
                 elt.rule = DeductionNode.input(this.ruleContent, i => Math.max(1,i.value.length));;
+                elt.rule.setAttribute("required","required")
                 ruleContainer.setAttribute("class","rule");
                 ruleContainer.appendChild(elt.rule);
                 childLabel.removeChild(childLabel.lastChild);
@@ -77,25 +77,6 @@ class DeductionNode {
                     elt.rule.value = r
                     elt.rule.dispatchEvent(new Event('input'))
                 })
-                this.on("infoChanged", (i,c) => {
-                    try {
-                        try {ruleContainer.popper.destroy()} catch (e) {}
-                        var msg = document.createElement("div");
-                        var wrapper = document.createElement("div");
-                        msg.innerHTML = i;
-                        wrapper.setAttribute("class","rulePopper")
-                        wrapper.appendChild(msg);
-                        ruleContainer.appendChild(wrapper);
-                        ruleContainer.setAttribute("class","rule " + c)
-                        ruleContainer.popper = new Popper(elt.rule,msg,{
-                            placement: "right",
-                            removeOnDestroy: true,
-                        });
-                    } catch(e) {
-                        console.log(e)
-                        elt.rule.setAttribute("title", i);
-                    }
-                });
             }
         }
         if (this.forest.length > 0) elt.addRule()
@@ -112,6 +93,36 @@ class DeductionNode {
             if (l != elt.input.value) {
                 elt.input.value = l;
                 elt.input.dispatchEvent(new Event('input'))
+            }
+        });
+        this.on("infoChanged", (i,c) => {
+            var msg = document.createElement("div");
+            var wrapper = document.createElement("div");
+            msg.innerHTML = i;
+            wrapper.setAttribute("class","popper")
+            wrapper.appendChild(msg);
+            let inputContainer = elt.input.parentNode;
+            try {elt.popper.destroy()} catch (e) {}
+            if (this.forest.length > 0) {
+                try {
+                    let ruleContainer = elt.rule.parentNode
+                    ruleContainer.appendChild(wrapper);
+                    ruleContainer.setAttribute("class","rule " + c)
+                    inputContainer.setAttribute("class","")
+                    elt.popper = new Popper(elt.rule,wrapper,{
+                        placement: "right",
+                        removeOnDestroy: true,
+                    });
+                } catch { elt.rule.setAttribute("title", i); }
+            } else {
+                try {
+                    inputContainer.appendChild(wrapper);
+                    inputContainer.setAttribute("class",c)
+                    elt.popper = new Popper(elt.input, wrapper,{
+                        placement: "right",
+                        removeOnDestroy: true,
+                    });
+                } catch { elt.rule.setAttribute("title", i); }
             }
         });
         this.on("siblingsChanged", () => elt.input.dispatchEvent(new Event('input')));
@@ -177,7 +188,7 @@ class DeductionNode {
         elt.appendChild(elt.forest);
         elt.appendChild(elt.label);
         elt.label.appendChild(document.createElement("div"));
-        elt.label.appendChild(elt.input);
+        elt.label.appendChild(document.createElement("div")).appendChild(elt.input);
         elt.label.appendChild(document.createElement("div"));
 
         target.prepend(elt);

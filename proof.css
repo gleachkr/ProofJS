@@ -10,6 +10,7 @@ input {
     margin:0px !important;
     padding:0px;
     font-size:12pt;
+    position: relative; 
 }
 
 .label input { text-align:center }
@@ -20,6 +21,7 @@ input {
     flex-direction: row;
     justify-content: center;
     line-height:1;
+    position: relative; 
 }
 
 .root> *, .label > * {
@@ -40,7 +42,7 @@ input {
     display: inline-block;
 }
 
-.label > * {
+.label > *:not(.popper) {
     border-bottom: 1px solid black;
 }
 
@@ -70,9 +72,9 @@ input {
     min-width:1em;
 }
 
-.waiting input { color: gray }
+.waiting > input { color: gray }
 
-.parse-error input, .feedback input { color: red }
+.parse-error > input, .feedback > input { color: red }
 
 .rule input {
     font-size:8pt;
@@ -87,21 +89,24 @@ input {
 
 .rule input:not(:valid) { background:#eeeeee }
 
-.rule > .rulePopper {
+.popper {
     position:absolute;
     bottom:25px;
     visibility:hidden;
-    width: 400px;
+    width:400px;
+    left:0px;
+    z-index:1;
 }
 
-.rule > .rulePopper > div {
+.popper > div {
     background: white;
     display:inline-block;
     border:1px solid black;
     padding:10px;
-    z-index:1;
+    margin-left:5px;
+    margin-right:5px;
 }
 
-.rule:hover > .rulePopper {
+*:hover > .popper {
     visibility:visible;
 }
