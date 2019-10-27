@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-    <head>
+ *  <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width" />
         <title>ProofJS Demos</title>
@@ -125,35 +125,62 @@ var root2 = new DeductionRoot(
 {
   "label": "P,P->Q:|-:Q",
   "rule": "L->",
+  "ident": 11,
   "forest": [
-      {
-        "label": "P,Q:|-:Q",
-        "rule": "Cut",
-        "forest": [
+    {
+      "label": "P,Q:|-:Q",
+      "rule": "Cut",
+      "ident": 12,
+      "forest": [
+        {
+          "label": "P,Q,R:|-:Q",
+          "rule": "Rep",
+          "ident": 13,
+          "forest": [
             {
-                  "label": "P,Q,R:|-:Q",
-                  "rule": "",
-                  "forest": []
-                },
-            {
-                  "label": "P,Q:|-:R,Q",
-                  "rule": "",
-                  "forest": []
-                }
-              ]
-          },
-      {
-        "label": "P:|-:Q,P",
-        "rule": "Ax",
-        "forest": [
-            {
+              "label": "P,R,Q:|-:Q",
+              "rule": "Ax",
+              "ident": 58,
+              "forest": [
+                {
                   "label": "",
                   "rule": "",
+                  "ident": 59,
                   "forest": []
                 }
               ]
-          }
-    ]
+            }
+          ]
+        },
+        {
+          "label": "P,Q:|-:Q,R",
+          "rule": "Ax",
+          "ident": 14,
+          "forest": [
+            {
+              "label": "",
+              "rule": "",
+              "ident": 57,
+              "forest": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "P:|-:Q,P",
+      "rule": "Ax",
+      "ident": 15,
+      "forest": [
+        {
+          "label": "",
+          "rule": "",
+          "ident": 16,
+          "forest": []
+        }
+      ]
+    }
+  ]
 }
 );
 
