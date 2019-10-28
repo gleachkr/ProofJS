@@ -89,7 +89,7 @@ input {
 
 .rule input:not(:valid) { background:#eeeeee }
 
-.popper {
+.proofJSPopper {
     position:absolute;
     visibility:hidden;
     width:400px;
@@ -97,12 +97,9 @@ input {
     z-index:1;
 }
 
-.popper[x-placement="left"] > div { float:right; }
+.proofJSPopper[x-placement="left"] > div { float:right; }
 
-.popper[x-out-of-boundaries] {  }
-
-
-.popper > div {
+.proofJSPopper > div {
     background: white;
     display:inline-block;
     border:1px solid black;
@@ -111,6 +108,6 @@ input {
     margin-right:5px;
 }
 
-*:hover > .popper {
+*:hover > .proofJSPopper {
     visibility:visible;
 }

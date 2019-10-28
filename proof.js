@@ -99,7 +99,7 @@ class DeductionNode {
             var msg = document.createElement("div");
             var wrapper = document.createElement("div");
             msg.innerHTML = i;
-            wrapper.setAttribute("class","popper")
+            wrapper.setAttribute("class","proofJSPopper")
             wrapper.appendChild(msg);
             let inputContainer = elt.input.parentNode;
             try {elt.popper.destroy()} catch (e) {}
