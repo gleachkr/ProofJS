@@ -112,6 +112,9 @@ class DeductionNode {
                     elt.popper = new Popper(elt.rule,wrapper,{
                         placement: "right",
                         removeOnDestroy: true,
+                        modifiers: {
+                            preventOverflow: { enabled:false }
+                        }
                     });
                 } catch { elt.rule.setAttribute("title", i); }
             } else {
@@ -121,6 +124,9 @@ class DeductionNode {
                     elt.popper = new Popper(elt.input, wrapper,{
                         placement: "right",
                         removeOnDestroy: true,
+                        modifiers: {
+                            preventOverflow: { enabled:false }
+                        }
                     });
                 } catch { elt.rule.setAttribute("title", i); }
             }

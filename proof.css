@@ -91,14 +91,15 @@ input {
 
 .popper {
     position:absolute;
-    bottom:25px;
     visibility:hidden;
-    width:400px;
+    width:200px;
     left:0px;
     z-index:1;
 }
 
 .popper[x-placement="left"] > div { float:right; }
+
+.popper[x-out-of-boundaries] {  }
 
 
 .popper > div {
