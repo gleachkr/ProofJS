@@ -92,7 +92,7 @@ input {
 .popper {
     position:absolute;
     visibility:hidden;
-    width:200px;
+    width:400px;
     left:0px;
     z-index:1;
 }

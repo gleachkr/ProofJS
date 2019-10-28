@@ -113,7 +113,8 @@ class DeductionNode {
                         placement: "right",
                         removeOnDestroy: true,
                         modifiers: {
-                            preventOverflow: { enabled:false }
+                            preventOverflow: { enabled:false },
+                            hide: { enabled:false }
                         }
                     });
                 } catch { elt.rule.setAttribute("title", i); }
@@ -125,7 +126,8 @@ class DeductionNode {
                         placement: "right",
                         removeOnDestroy: true,
                         modifiers: {
-                            preventOverflow: { enabled:false }
+                            preventOverflow: { enabled:false },
+                            hide: { enabled:false }
                         }
                     });
                 } catch { elt.rule.setAttribute("title", i); }
