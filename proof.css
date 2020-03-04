@@ -87,7 +87,9 @@ input {
     max-width:none;
 }
 
-.rule input:not(:valid) { background:#eeeeee }
+.rule input:not(:valid) { background:#eeeeee; }
+
+.root input:not(:valid) { background:#eeeeee; }
 
 .proofJSPopper {
     position:absolute;
@@ -95,6 +97,7 @@ input {
     width:400px;
     left:0px;
     z-index:1;
+    font-size:12pt;
 }
 
 .proofJSPopper[x-placement="left"] > div { float:right; }
