@@ -89,8 +89,6 @@ input {
 
 .rule input:not(:valid) { background:#eeeeee; }
 
-.root input:not(:valid) { background:#eeeeee; }
-
 .proofJSPopper {
     position:absolute;
     visibility:hidden;
