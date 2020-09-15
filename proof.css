@@ -94,7 +94,6 @@ input {
 .proofJSPopper {
     position:absolute;
     visibility:hidden;
-    width:400px;
     left:0px;
     z-index:1;
     font-size:12pt;
@@ -105,6 +104,10 @@ input {
 .proofJSPopper > div {
     background: white;
     display:inline-block;
+    width:-moz-max-content;
+    width:-webkit-max-content;
+    width:max-content;
+    max-width:400px;
     border:1px solid black;
     padding:10px;
     margin-left:5px;
