@@ -98,7 +98,7 @@ class DeductionNode {
         this.on("infoChanged", (i,c) => {
             var msg = document.createElement("div");
             var wrapper = document.createElement("div");
-            msg.innerHTML = i;
+            msg.innerText = i;
             wrapper.setAttribute("class","proofJSPopper")
             wrapper.appendChild(msg);
             let inputContainer = elt.input.parentNode;
